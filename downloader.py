@@ -1,12 +1,10 @@
-@app.route("/download", methods=["POST"])
-def download():
-    data = request.get_json()
-    url = data.get("url")
-    if not url:
-        return jsonify(success=False, error="No URL provided.")
-    
-    try:
-        filename = download_video(url)  # get filename from download function
-        return send_from_directory('.', filename, as_attachment=True)
-    except Exception as e:
-        return jsonify(success=False, error=str(e))
+import yt_dlp
+
+def download_video(url):
+    ydl_opts = {
+        'format': 'best',
+        'outtmpl': '%(title)s.%(ext)s'
+    }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=True)
+        return ydl.prepare_filename(info)
