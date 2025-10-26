@@ -3,10 +3,6 @@ from downloader import download_video
 
 app = Flask(__name__, static_folder='.', static_url_path='')
 
-@app.route("/")
-def index():
-    return app.send_static_file('index.html')
-
 @app.route("/download", methods=["POST"])
 def download():
     data = request.get_json()
@@ -15,10 +11,11 @@ def download():
         return jsonify(success=False, error="No URL provided.")
     
     try:
-        download_video(url)
-        return jsonify(success=True)
+        filename = download_video(url)  # get filename from download function
+        return send_from_directory('.', filename, as_attachment=True)
     except Exception as e:
         return jsonify(success=False, error=str(e))
 
 if __name__ == "__main__":
     app.run(debug=True)
+
